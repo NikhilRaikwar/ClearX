@@ -3,11 +3,11 @@
   "clearXContract": "0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4",
   "usdt0": "0xC1A5B41512496B80903D1f32d6dEa3a73212E71F",
   "deploymentTx": "0x6e04e319f4956899e9ba18147145adf353c43db1ffca626997a99141d4f233d2",
-  "tradeId": "",
-  "tradeCreationTx": "",
-  "tradeAcceptanceTx": "",
-  "xrplPaymentTx": "",
-  "fdcRequestTx": "",
-  "fdcVotingRound": "",
-  "settlementTx": ""
+  "tradeId": "1",
+  "tradeCreationTx": "0x3db2950b8421d26bf175e536c11eb72199b73f44295ae0541950fb373f3b3c53",
+  "tradeAcceptanceTx": "0xa3eecb4a0b420047a5eb25946cf19963143df994177732667678bccfb8b48d34",
+  "xrplPaymentTx": "4EE4880D6BC32082094B8F069C809D8C69CA5049D8B6CC61EE62C461C4128172",
+  "fdcRequestTx": "0xede8f8f6655fafe68fa0f33a4a2882cf439bbd428e33508c3a352c9d1f16b10a",
+  "fdcVotingRound": "1425351",
+  "settlementTx": "0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1"
 }

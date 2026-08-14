@@ -15,7 +15,8 @@
     "test:contracts": "hardhat test",
     "test:e2e": "playwright test",
     "contracts:compile": "hardhat compile",
-    "deploy:coston2": "hardhat run scripts/deploy.ts --network coston2"
+    "deploy:coston2": "hardhat run scripts/deploy.ts --network coston2",
+    "xrpl:pay": "tsx scripts/xrpl-pay.ts"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
