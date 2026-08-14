@@ -1,0 +1,13 @@
+{
+  "network": "Coston2",
+  "clearXContract": "0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4",
+  "usdt0": "0xC1A5B41512496B80903D1f32d6dEa3a73212E71F",
+  "deploymentTx": "0x6e04e319f4956899e9ba18147145adf353c43db1ffca626997a99141d4f233d2",
+  "tradeId": "",
+  "tradeCreationTx": "",
+  "tradeAcceptanceTx": "",
+  "xrplPaymentTx": "",
+  "fdcRequestTx": "",
+  "fdcVotingRound": "",
+  "settlementTx": ""
+}

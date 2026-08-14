@@ -1,0 +1,4 @@
+import { expect, test } from "@playwright/test";
+test("renders the settlement console",async({page})=>{await page.goto("/");await expect(page.getByRole("heading",{name:"Native XRP settlement, without sending first."})).toBeVisible();await expect(page.getByText("YOU LOCK")).toBeVisible();await expect(page.getByRole("button",{name:/Connect wallet/i})).toBeVisible();});
+test("shows real funded-marketplace empty state before deployment",async({page})=>{await page.goto("/open");await expect(page.getByRole("heading",{name:"Open Settlements"})).toBeVisible();await expect(page.getByText("No funded settlements are open")).toBeVisible();});
+test("keeps the main console within the mobile viewport",async({page})=>{await page.goto("/");const width=await page.locator(".console").evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));expect(width.scroll).toBeLessThanOrEqual(width.client+1);});
