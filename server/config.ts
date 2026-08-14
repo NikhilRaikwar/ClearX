@@ -5,6 +5,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3000),
   PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  MARKET_PRICE_URL: z.string().url().default("https://api.coinbase.com/v2/prices/XRP-USD/spot"),
   COSTON2_CHAIN_ID: z.coerce.number().int().default(114),
   COSTON2_RPC_URL: z.string().url(),
   COSTON2_EXPLORER_URL: z.string().url(),
@@ -28,4 +29,3 @@ const envSchema = z.object({
 
 export const config = envSchema.parse(process.env);
 export const isConfigured = () => /^0x[0-9a-fA-F]{40}$/.test(config.CLEARX_CONTRACT_ADDRESS) && /^0x[0-9a-fA-F]{64}$/.test(config.FDC_RELAYER_PRIVATE_KEY);
-
