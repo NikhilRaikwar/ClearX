@@ -19,6 +19,21 @@ ClearX is a non-custodial payment-versus-payment marketplace between native XRP 
 | Chain ID | `114` |
 | Contract source | Verified on Coston2 Explorer |
 
+## Proven live settlement
+
+ClearX Trade `#1` completed a real end-to-end testnet settlement: the Maker locked `5 test USD₮0`, the Taker paid `10 test XRP` directly on XRPL Testnet, FDC finalized voting round `1425351`, and the verified proof released the escrow to the Taker.
+
+| Evidence | Transaction |
+|---|---|
+| Trade created and funded | [`0x3db295…b3c53`](https://coston2-explorer.flare.network/tx/0x3db2950b8421d26bf175e536c11eb72199b73f44295ae0541950fb373f3b3c53) |
+| Trade reserved by Taker | [`0xa3eecb…8d34`](https://coston2-explorer.flare.network/tx/0xa3eecb4a0b420047a5eb25946cf19963143df994177732667678bccfb8b48d34) |
+| Native XRP payment | [`4EE488…28172`](https://testnet.xrpl.org/transactions/4EE4880D6BC32082094B8F069C809D8C69CA5049D8B6CC61EE62C461C4128172) |
+| FDC attestation request | [`0xede8f8…6b10a`](https://coston2-explorer.flare.network/tx/0xede8f8f6655fafe68fa0f33a4a2882cf439bbd428e33508c3a352c9d1f16b10a) |
+| FDC consensus | [Voting round `1425351`](https://coston2-systems-explorer.flare.network/voting-round/1425351?tab=fdc) |
+| USD₮0 released | [`0xc01126…2fcf1`](https://coston2-explorer.flare.network/tx/0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1) |
+
+Final balance evidence: Maker XRP increased from `1,000` to `1,010`; Taker USD₮0 increased from `10` to `15`; ClearX escrow returned to `0` after settlement. All public identifiers are also preserved in [`demo-evidence.json`](demo-evidence.json).
+
 ## Architecture
 
 ```mermaid
