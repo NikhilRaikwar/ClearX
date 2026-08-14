@@ -4,12 +4,7 @@
   "buildCommand": "npm run build:web",
   "outputDirectory": "dist",
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/open", "destination": "/index.html" },
-    { "source": "/my-trades", "destination": "/index.html" },
-    { "source": "/how-it-works", "destination": "/index.html" },
-    { "source": "/settlement/:tradeId", "destination": "/index.html" }
-  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "headers": [
     {
       "source": "/assets/(.*)",
