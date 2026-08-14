@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildGemWalletPayment, xrplPaymentGuard } from "./xrpl-wallet";
+import { buildGemWalletPayment, gemWalletTransactionHash, xrplPaymentGuard } from "./xrpl-wallet";
 
 describe("GemWallet XRP payment", () => {
   const destination = "rGsT9Wu9rWX1jZkFiFWfkBgqRoJNwAbedA";
@@ -19,5 +19,11 @@ describe("GemWallet XRP payment", () => {
     expect(xrplPaymentGuard({ installed: true, connected: true, network: "Mainnet", address: "rA", reservedAddress: "rA", expired: false })).toBe("WRONG_NETWORK");
     expect(xrplPaymentGuard({ installed: true, connected: true, network: "Testnet", address: "rA", reservedAddress: "rB", expired: false })).toBe("ADDRESS_MISMATCH");
     expect(xrplPaymentGuard({ installed: true, connected: true, network: "Testnet", address: "rA", reservedAddress: "rA", expired: false })).toBe("READY_TO_PAY");
+  });
+  it("normalizes valid hashes and explains rejection or missing results", () => {
+    expect(gemWalletTransactionHash({ result: { hash: `0x${"ab".repeat(32)}` } })).toBe("AB".repeat(32));
+    expect(() => gemWalletTransactionHash({ type: "reject" })).toThrow("rejected");
+    expect(() => gemWalletTransactionHash({ result: {} })).toThrow("did not return");
+    expect(() => gemWalletTransactionHash({ result: { hash: "0x1234" } })).toThrow("invalid");
   });
 });

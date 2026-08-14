@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount, useWriteContract } from "wagmi";
@@ -19,6 +19,7 @@ export function TradeDetail() {
   const { data: cfg } = useQuery({ queryKey: ["config"], queryFn: api.config });
   const q = useQuery({ queryKey: ["trade", id], queryFn: () => api.trade(id), refetchInterval: 6000 });
   const { writeContract, isPending, error } = useWriteContract(); const [xrpl, setXrpl] = useState(""); const [hash, setHash] = useState(""); const [job, setJob] = useState<Job>(); const [walletError, setWalletError] = useState(""); const [signing, setSigning] = useState(false); const [advanced, setAdvanced] = useState(false);
+  const paymentStarted = useRef(false);
   useEffect(() => { if (gem.connected && gem.network === "Testnet" && gem.address && !xrpl) setXrpl(gem.address); }, [gem.connected, gem.network, gem.address, xrpl]);
   useEffect(() => { if (!job || ["SETTLED", "FAILED"].includes(job.stage)) return; const timer = setInterval(() => api.job(job.id).then(next => { setJob(next); if (next.stage === "SETTLED") void q.refetch(); }).catch(() => {}), 4000); return () => clearInterval(timer); }, [job, q]);
   if (q.isLoading) return <section className="page"><Loading /></section>;
@@ -27,7 +28,7 @@ export function TradeDetail() {
   const write = (fn: string, args: unknown[]) => cfg?.clearXContractAddress && writeContract({ abi: clearXAbi, address: cfg.clearXContractAddress, functionName: fn, args } as never, { onSuccess: () => setTimeout(() => void q.refetch(), 4000) });
   const start = async (txHash = hash) => { const normalized = canonicalXrplTxHash(txHash); setHash(normalized); setJob(await api.startJob(t.id, normalized)); };
   const walletState = xrplPaymentGuard({ installed: gem.installed, connected: gem.connected, network: gem.network, address: gem.address, reservedAddress: t.takerXrplAddress, expired });
-  const payWithGem = async () => { setWalletError(""); setSigning(true); try { buildGemWalletPayment(gem.address!, t.makerXrplAddress, t.xrpAmountDrops, t.paymentReference); const txHash = await gem.submitPayment(t.makerXrplAddress, t.xrpAmountDrops, t.paymentReference); await start(txHash); } catch (e) { setWalletError(e instanceof Error ? e.message : "GemWallet payment failed"); } finally { setSigning(false); } };
+  const payWithGem = async () => { if (paymentStarted.current) return; paymentStarted.current = true; setWalletError(""); setSigning(true); try { buildGemWalletPayment(gem.address!, t.makerXrplAddress, t.xrpAmountDrops, t.paymentReference); const txHash = await gem.submitPayment(t.makerXrplAddress, t.xrpAmountDrops, t.paymentReference); await start(txHash); } catch (e) { paymentStarted.current = false; setWalletError(e instanceof Error ? e.message : "GemWallet payment failed"); } finally { setSigning(false); } };
   const usdt = Number(formatUnits(BigInt(t.usdt0Amount), 6)); const xrp = Number(formatUnits(BigInt(t.xrpAmountDrops), 6)); const marketXrp = xrp * (market.data?.priceUsd ?? 0); const implied = xrp ? usdt / xrp : 0; const premium = market.data?.priceUsd ? ((implied / market.data.priceUsd) - 1) * 100 : 0;
   return <section className="page settlement-page">
     <div className="trade-header"><div><span className="section-kicker">SETTLEMENT #{t.id}</span><h1>{statusNames[t.status]}</h1><p>Onchain payment-versus-payment workspace</p></div><div className="header-status"><StatusPill tone={t.status === 3 ? "success" : t.status === 2 ? "warning" : t.status === 4 ? "danger" : "neutral"}>{statusNames[t.status]}</StatusPill>{cfg && <ExplorerLink href={`${cfg.explorerUrl}/address/${cfg.clearXContractAddress}`}>Contract</ExplorerLink>}</div></div>

@@ -23,3 +23,11 @@ export const xrplPaymentGuard = (input: { installed: boolean; connected: boolean
   if (input.expired) return "EXPIRED";
   return "READY_TO_PAY";
 };
+
+export function gemWalletTransactionHash(response: { type?: string; result?: { hash?: string } }): string {
+  const hash = response.result?.hash;
+  if (!hash) throw new Error(response.type === "reject" ? "GemWallet payment was rejected" : "GemWallet did not return a transaction hash");
+  const normalized = hash.replace(/^0x/i, "").toUpperCase();
+  if (!/^[A-F0-9]{64}$/.test(normalized)) throw new Error("GemWallet returned an invalid transaction hash");
+  return normalized;
+}

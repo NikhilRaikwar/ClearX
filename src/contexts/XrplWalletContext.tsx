@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getAddress, getNetwork, isInstalled, on, submitTransaction } from "@gemwallet/api";
 import type { XrplWalletState } from "../types";
-import { buildGemWalletPayment } from "../lib/xrpl-wallet";
+import { buildGemWalletPayment, gemWalletTransactionHash } from "../lib/xrpl-wallet";
 
 type ContextValue = XrplWalletState & {
   connect: () => Promise<void>;
@@ -33,9 +33,7 @@ export function XrplWalletProvider({ children }: { children: ReactNode }) {
   const submitPayment = useCallback(async (destination: string, amountDrops: string, reference: string) => {
     if (!state.address) throw new Error("Connect GemWallet before signing");
     const response = await submitTransaction({ transaction: buildGemWalletPayment(state.address, destination, amountDrops, reference) });
-    const hash = response.result?.hash;
-    if (!hash) throw new Error(response.type === "reject" ? "GemWallet payment was rejected" : "GemWallet did not return a transaction hash");
-    return hash.replace(/^0x/i, "").toUpperCase();
+    return gemWalletTransactionHash(response);
   }, [state.address]);
 
   useEffect(() => {
