@@ -10,7 +10,7 @@
 [![Tests](https://img.shields.io/badge/tests-59_passing-079A61?style=flat-square)](#verification)
 [![License](https://img.shields.io/badge/license-MIT-2563EB?style=flat-square)](LICENSE)
 
-[**Live application**](https://clearx-protocol.vercel.app) · [**API health**](https://clearx-protocol.vercel.app/api/health) · [**Verified Coston2 contract**](https://coston2-explorer.flare.network/address/0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4#code)
+[**Live application**](https://clearx.nikhilraikwar.me) · [**API health**](https://clearx.nikhilraikwar.me/api/health) · [**Verified Coston2 contract**](https://coston2-explorer.flare.network/address/0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4#code)
 
 ClearX is a non-custodial payment-versus-payment marketplace between native XRP on XRP Ledger and USD₮0 on Flare. A maker funds an escrow on Coston2, a taker pays XRP directly to the maker, and Flare Data Connector proves the external-chain payment before the contract releases USD₮0.
 
@@ -20,10 +20,10 @@ ClearX is a non-custodial payment-versus-payment marketplace between native XRP 
 
 ## Judge quick path
 
-1. Open the [live app](https://clearx-protocol.vercel.app) and inspect **Open Settlements**, **My Trades**, and **How it works**.
+1. Open the [live app](https://clearx.nikhilraikwar.me) and inspect **Open Settlements**, **My Trades**, and **How it works**.
 2. Review the completed public-testnet settlement in [demo-evidence.json](demo-evidence.json).
 3. Open the [native XRP payment](https://testnet.xrpl.org/transactions/4EE4880D6BC32082094B8F069C809D8C69CA5049D8B6CC61EE62C461C4128172), [FDC voting round](https://coston2-systems-explorer.flare.network/voting-round/1425351?tab=fdc), and [USD₮0 release](https://coston2-explorer.flare.network/tx/0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1).
-4. Confirm the hosted backend is configured at [the public health endpoint](https://clearx-protocol.vercel.app/api/health).
+4. Confirm the hosted backend is configured at [the public health endpoint](https://clearx.nikhilraikwar.me/api/health).
 
 The app is a real testnet MVP. Do not use mainnet funds or production wallet credentials.
 
@@ -132,7 +132,7 @@ The relayer cannot fabricate settlement. `ClearXSettlement` independently calls 
 
 ### Hosted deployment
 
-- **Frontend:** Vercel at [clearx-protocol.vercel.app](https://clearx-protocol.vercel.app), with privacy-friendly Vercel Web Analytics.
+- **Frontend:** Vercel at [clearx.nikhilraikwar.me](https://clearx.nikhilraikwar.me), with privacy-friendly Vercel Web Analytics.
 - **Backend:** Railway Docker service running the Express API and FDC worker.
 - **Persistence:** Railway volume mounted at `/app/data` for restart-safe SQLite job state.
 - **Networking:** same-origin `/api` requests are proxied by Vercel to Railway, avoiding browser DNS and CORS dependence.
