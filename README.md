@@ -66,6 +66,7 @@ Trade `#1` completed on public testnets: the maker locked `5 test USD₮0`, the 
 | FDC request | [`0xede8f8…6b10a`](https://coston2-explorer.flare.network/tx/0xede8f8f6655fafe68fa0f33a4a2882cf439bbd428e33508c3a352c9d1f16b10a) |
 | FDC consensus | [Voting round `1425351`](https://coston2-systems-explorer.flare.network/voting-round/1425351?tab=fdc) |
 | USD₮0 release | [`0xc01126…2fcf1`](https://coston2-explorer.flare.network/tx/0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1) |
+| ClearX Settlement Reciept | [`Receipt`](https://clearx.nikhilraikwar.me/settlement/1) |
 
 The maker received 10 XRP, the taker received 5 USD₮0, and contract escrow returned to zero. Machine-readable identifiers are preserved in [`demo-evidence.json`](demo-evidence.json).
 
