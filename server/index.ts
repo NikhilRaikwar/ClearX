@@ -33,6 +33,11 @@ app.post("/api/fdc/jobs", async (req, res) => {
 app.get("/api/fdc/jobs/:id", (req, res) => { const job = getJob(req.params.id); return job ? res.json(job) : res.status(404).json({ error: "Job not found" }); });
 
 const provider = new JsonRpcProvider(config.COSTON2_RPC_URL, config.COSTON2_CHAIN_ID);
+async function settlementTxHash(contract: Contract, tradeId: string, status: number) {
+  if (status !== 3) return undefined;
+  const events = await contract.queryFilter(contract.filters.TradeSettled(BigInt(tradeId)), config.CLEARX_DEPLOYMENT_BLOCK, "latest");
+  return events.at(-1)?.transactionHash;
+}
 async function readTrades(wallet?: string) {
   if (!config.CLEARX_CONTRACT_ADDRESS) return [];
   const contract = new Contract(config.CLEARX_CONTRACT_ADDRESS, clearXAbi, provider);
@@ -50,7 +55,8 @@ app.get("/api/trades/:id", async (req, res) => {
   try {
     const contract = new Contract(config.CLEARX_CONTRACT_ADDRESS, clearXAbi, provider); const t = await contract.trades(req.params.id);
     if (Number(t.id) === 0) return res.status(404).json({ error: "Trade not found" });
-    return res.json({ id: t.id.toString(), maker: t.maker, taker: t.taker, makerXrplAddress: await contract.makerXrplAddresses(req.params.id), takerXrplAddress: await contract.takerXrplAddresses(req.params.id), usdt0Amount: t.usdt0Amount.toString(), xrpAmountDrops: t.xrpAmountDrops.toString(), paymentReference: t.paymentReference, expiry: Number(t.expiry), isPublic: t.isPublic, status: Number(t.status), settlementXrplTx: t.settlementXrplTx });
+    const status = Number(t.status);
+    return res.json({ id: t.id.toString(), maker: t.maker, taker: t.taker, makerXrplAddress: await contract.makerXrplAddresses(req.params.id), takerXrplAddress: await contract.takerXrplAddresses(req.params.id), usdt0Amount: t.usdt0Amount.toString(), xrpAmountDrops: t.xrpAmountDrops.toString(), paymentReference: t.paymentReference, expiry: Number(t.expiry), isPublic: t.isPublic, status, settlementXrplTx: t.settlementXrplTx, settlementTxHash: await settlementTxHash(contract, req.params.id, status) });
   } catch { return res.status(503).json({ error: "Unable to read trade" }); }
 });
 

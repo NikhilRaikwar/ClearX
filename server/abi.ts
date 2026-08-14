@@ -13,6 +13,7 @@ export const clearXAbi = [
   "function settleTrade(uint256 tradeId,(bytes32[] merkleProof,(bytes32 attestationType,bytes32 sourceId,uint64 votingRound,uint64 lowestUsedTimestamp,(bytes32 transactionId,uint256 inUtxo,uint256 utxo) requestBody,(uint64 blockNumber,uint64 blockTimestamp,bytes32 sourceAddressHash,bytes32 sourceAddressesRoot,bytes32 receivingAddressHash,bytes32 intendedReceivingAddressHash,int256 spentAmount,int256 intendedSpentAmount,int256 receivedAmount,int256 intendedReceivedAmount,bytes32 standardPaymentReference,bool oneToOne,uint8 status) responseBody) data) proof)",
   "event TradeCreated(uint256 indexed tradeId,address indexed maker,uint256 usdt0Amount,uint256 xrpAmountDrops,bytes32 makerXrplAddressHash,bytes32 paymentReference,uint64 expiry,bool isPublic)",
   "event TradeTaken(uint256 indexed tradeId,address indexed taker,bytes32 takerXrplAddressHash)",
+  "event TradeSettled(uint256 indexed tradeId,bytes32 indexed xrplTransactionId,address indexed taker,uint256 usdt0Amount,uint256 xrpAmountDrops)",
 ] as const;
 
 export const FLARE_REGISTRY = "0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019";
