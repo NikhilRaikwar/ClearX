@@ -9,6 +9,7 @@ import { config, isConfigured } from "./config.js";
 import { clearXAbi } from "./abi.js";
 import { getJob } from "./db.js";
 import { resumeJobs, startJob } from "./fdc.js";
+import { getXrpUsdPrice } from "./market.js";
 
 const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -20,6 +21,7 @@ const startSchema = z.object({ tradeId: z.string().regex(/^\d+$/), xrplTxHash: z
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, network: "coston2", configured: isConfigured(), timestamp: new Date().toISOString() }));
 app.get("/api/config", (_req, res) => res.json({ chainId: config.COSTON2_CHAIN_ID, rpcUrl: config.COSTON2_RPC_URL, explorerUrl: config.COSTON2_EXPLORER_URL, systemsExplorerUrl: config.COSTON2_SYSTEMS_EXPLORER_URL, faucetUrl: config.COSTON2_FAUCET_URL, xrplExplorerTxBaseUrl: config.XRPL_TESTNET_EXPLORER_TX_BASE_URL, clearXContractAddress: config.CLEARX_CONTRACT_ADDRESS || null, usdt0Address: config.USDT0_ADDRESS || null, deploymentBlock: config.CLEARX_DEPLOYMENT_BLOCK, configured: isConfigured() }));
+app.get("/api/market/xrp-usd", async (_req, res) => { try { return res.json(await getXrpUsdPrice(fetch, Date.now(), config.MARKET_PRICE_URL)); } catch { return res.status(503).json({ error: "XRP/USD market reference is temporarily unavailable" }); } });
 app.post("/api/fdc/jobs", async (req, res) => {
   const parsed = startSchema.safeParse(req.body); if (!parsed.success) return res.status(400).json({ error: "Invalid trade ID or XRPL transaction hash" });
   const ip = req.ip ?? "unknown"; const cutoff = Date.now() - 3600000; const recent = (starts.get(ip) ?? []).filter((t) => t > cutoff);

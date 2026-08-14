@@ -1,172 +1,174 @@
+![ClearX banner](public/assets/clearX%20banner.png)
+
 # ClearX
 
-> Native XRP settlement without sending first.
+### Native XRP settlement without sending first
 
-ClearX is a non-custodial payment-versus-payment marketplace between native XRP on the XRP Ledger and test USD₮0 on Flare Coston2. A maker locks USD₮0, a taker pays XRP directly to the maker, and the Flare Data Connector proves that payment before the smart contract releases the locked asset.
+[![Flare](https://img.shields.io/badge/Flare-Coston2-E62058?style=flat-square)](https://dev.flare.network/)
+[![XRPL](https://img.shields.io/badge/XRPL-Testnet-111111?style=flat-square)](https://testnet.xrpl.org/)
+[![FDC](https://img.shields.io/badge/Proof-Flare_Data_Connector-FF4F32?style=flat-square)](https://dev.flare.network/fdc/overview)
+[![Tests](https://img.shields.io/badge/tests-59_passing-079A61?style=flat-square)](#verification)
+[![License](https://img.shields.io/badge/license-MIT-2563EB?style=flat-square)](LICENSE)
 
-[![Flare](https://img.shields.io/badge/Flare-Coston2-E62058?style=for-the-badge)](https://dev.flare.network/)
-[![XRPL](https://img.shields.io/badge/XRPL-Testnet-111111?style=for-the-badge)](https://testnet.xrpl.org/)
-[![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-React-3178C6?style=for-the-badge)](https://www.typescriptlang.org/)
+ClearX is a non-custodial payment-versus-payment marketplace between native XRP on XRP Ledger and USD₮0 on Flare. A maker funds an escrow on Coston2, a taker pays XRP directly to the maker, and Flare Data Connector proves the external-chain payment before the contract releases USD₮0.
 
-## Live protocol
+> **Flare Summer Signal · Bounty 1: Interoperable Asset Products**
+>
+> Target users: OTC traders, treasury operators, XRP holders, market makers, and counterparties who need verifiable bilateral settlement.
 
-| Item | Coston2 value |
+## The problem
+
+Cross-chain OTC trades still depend on one party sending first, a trusted intermediary holding funds, or wrapped assets that change the asset being exchanged. Screenshots and transaction links are evidence for humans, but an EVM contract cannot independently enforce settlement from them.
+
+## The solution
+
+ClearX locks the Flare-side asset before XRP moves. Native XRP travels directly between external XRPL wallets with a trade-specific 32-byte memo. The relayer requests an official FDC attestation, retrieves the finalized proof, and submits it to the ClearX contract. The contract verifies sender, receiver, amount, memo, timestamp, status, proof owner, and replay state before releasing escrow.
+
+| Property | ClearX approach |
+|---|---|
+| Custody | Neither XRP nor XRPL seeds are held by ClearX |
+| XRP payment | Native XRPL `Payment`, signed with GemWallet or an external signer |
+| Flare asset | Real test USD₮0 locked in the verified Coston2 contract |
+| Cross-chain truth | Official Flare Data Connector payment attestation |
+| Settlement | Smart-contract enforced release after proof verification |
+| Recovery | Maker cancellation and deadline plus proof-grace reclaim paths |
+
+## Live testnet protocol
+
+| Item | Verified value |
 |---|---|
 | ClearX contract | [`0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4`](https://coston2-explorer.flare.network/address/0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4#code) |
 | Deployment transaction | [`0x6e04…33d2`](https://coston2-explorer.flare.network/tx/0x6e04e319f4956899e9ba18147145adf353c43db1ffca626997a99141d4f233d2) |
 | Test USD₮0 | [`0xC1A5B41512496B80903D1f32d6dEa3a73212E71F`](https://coston2-explorer.flare.network/address/0xC1A5B41512496B80903D1f32d6dEa3a73212E71F) |
-| Chain ID | `114` |
-| Contract source | Verified on Coston2 Explorer |
+| Network | Flare Coston2, chain ID `114` |
+| Source | Verified on Coston2 Explorer |
 
-## Proven live settlement
+## Proven end-to-end settlement
 
-ClearX Trade `#1` completed a real end-to-end testnet settlement: the Maker locked `5 test USD₮0`, the Taker paid `10 test XRP` directly on XRPL Testnet, FDC finalized voting round `1425351`, and the verified proof released the escrow to the Taker.
+Trade `#1` completed on public testnets: the maker locked `5 test USD₮0`, the taker paid `10 test XRP`, FDC finalized voting round `1425351`, and the verified proof released escrow to the taker.
 
-| Evidence | Transaction |
+| Evidence | Public transaction |
 |---|---|
-| Trade created and funded | [`0x3db295…b3c53`](https://coston2-explorer.flare.network/tx/0x3db2950b8421d26bf175e536c11eb72199b73f44295ae0541950fb373f3b3c53) |
-| Trade reserved by Taker | [`0xa3eecb…8d34`](https://coston2-explorer.flare.network/tx/0xa3eecb4a0b420047a5eb25946cf19963143df994177732667678bccfb8b48d34) |
+| Funded trade | [`0x3db295…b3c53`](https://coston2-explorer.flare.network/tx/0x3db2950b8421d26bf175e536c11eb72199b73f44295ae0541950fb373f3b3c53) |
+| Taker reservation | [`0xa3eecb…8d34`](https://coston2-explorer.flare.network/tx/0xa3eecb4a0b420047a5eb25946cf19963143df994177732667678bccfb8b48d34) |
 | Native XRP payment | [`4EE488…28172`](https://testnet.xrpl.org/transactions/4EE4880D6BC32082094B8F069C809D8C69CA5049D8B6CC61EE62C461C4128172) |
-| FDC attestation request | [`0xede8f8…6b10a`](https://coston2-explorer.flare.network/tx/0xede8f8f6655fafe68fa0f33a4a2882cf439bbd428e33508c3a352c9d1f16b10a) |
+| FDC request | [`0xede8f8…6b10a`](https://coston2-explorer.flare.network/tx/0xede8f8f6655fafe68fa0f33a4a2882cf439bbd428e33508c3a352c9d1f16b10a) |
 | FDC consensus | [Voting round `1425351`](https://coston2-systems-explorer.flare.network/voting-round/1425351?tab=fdc) |
-| USD₮0 released | [`0xc01126…2fcf1`](https://coston2-explorer.flare.network/tx/0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1) |
+| USD₮0 release | [`0xc01126…2fcf1`](https://coston2-explorer.flare.network/tx/0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1) |
 
-Final balance evidence: Maker XRP increased from `1,000` to `1,010`; Taker USD₮0 increased from `10` to `15`; ClearX escrow returned to `0` after settlement. All public identifiers are also preserved in [`demo-evidence.json`](demo-evidence.json).
+The maker received 10 XRP, the taker received 5 USD₮0, and contract escrow returned to zero. Machine-readable identifiers are preserved in [`demo-evidence.json`](demo-evidence.json).
 
-## Architecture
+## How it works
 
 ```mermaid
 flowchart LR
-    Maker["Maker<br/>locks USD₮0"]
-    Escrow["ClearX Escrow<br/>Coston2"]
-    Taker["Taker<br/>sends native XRP"]
-    XRPL["XRP Ledger<br/>Testnet"]
-    API["ClearX Relayer<br/>Express + SQLite"]
-    FDC["Flare Data Connector<br/>Payment attestation"]
-    Proof["Merkle proof<br/>verifyPayment"]
-    Release["USD₮0 released<br/>to taker"]
-
-    Maker -->|"approve + fund"| Escrow
-    Taker -->|"direct payment + memo"| XRPL
-    XRPL -->|"validated transaction"| API
-    API -->|"attestation request"| FDC
-    FDC -->|"finalized round"| API
-    API --> Proof
-    Proof --> Escrow
-    Escrow --> Release
-
-    classDef person fill:#111827,stroke:#38bdf8,color:#fff,stroke-width:2px;
-    classDef flare fill:#e62058,stroke:#ff8bad,color:#fff,stroke-width:2px;
-    classDef xrpl fill:#151515,stroke:#f8fafc,color:#fff,stroke-width:2px;
-    classDef service fill:#5b21b6,stroke:#c4b5fd,color:#fff,stroke-width:2px;
-    classDef success fill:#047857,stroke:#6ee7b7,color:#fff,stroke-width:2px;
-    class Maker,Taker person;
-    class Escrow,FDC,Proof flare;
-    class XRPL xrpl;
-    class API service;
-    class Release success;
+  M["Maker funds USD₮0"] --> E["ClearX escrow · Coston2"]
+  T["Taker signs native XRP Payment"] --> X["XRP Ledger Testnet"]
+  X --> P["Preflight validation"]
+  P --> F["Flare Data Connector"]
+  F --> V["Finalized Merkle proof"]
+  V --> E
+  E --> R["USD₮0 released to taker"]
+  classDef flare fill:#E62058,color:#fff,stroke:#FF8AA8;
+  classDef xrpl fill:#15171A,color:#fff,stroke:#777;
+  classDef proof fill:#5B21B6,color:#fff,stroke:#C4B5FD;
+  classDef done fill:#078A58,color:#fff,stroke:#6EE7B7;
+  class E flare;
+  class X xrpl;
+  class P,F,V proof;
+  class R done;
 ```
 
-The relayer cannot fabricate settlement. `ClearXSettlement` independently calls Flare's official `verifyPayment(IPayment.Proof)` and validates the XRPL source, receiver, amount, memo reference, status, one-to-one semantics, timestamp, proof owner, and replay state.
+1. Maker approves and locks USD₮0 with the receiving XRPL address and exact XRP amount.
+2. Taker reserves the funded trade, binding their Coston2 and XRPL identities.
+3. GemWallet signs a native XRP payment with the required single 32-byte memo.
+4. The API validates the transaction before spending relayer gas or FDC fees.
+5. FDC reaches decentralized consensus and publishes the proof.
+6. ClearX verifies every invariant and releases USD₮0 to the bound taker.
 
-## Core capabilities
+## Why Flare is essential
 
-- Real USD₮0 escrow, public/private listings, reservation, cancellation, and expiry recovery.
-- Direct native XRP payment; ClearX never receives or stores an XRPL seed.
-- Exact 32-byte payment reference carried in one XRPL `MemoData` field.
-- Persistent FDC lifecycle with SQLite restart recovery and request deduplication.
-- Coston2 wallet switching, allowance and balance reads, contract writes, and explorer evidence.
-- Responsive React interface for creating, discovering, tracking, and settling trades.
-- Dockerized Express API and Vite frontend for a single Railway service.
+ClearX is not an interface with a superficial wallet connection. The Coston2 contract cannot know what happened on XRPL without a trustworthy external-data protocol. FDC converts the validated native XRP payment into a fact the contract can verify. Removing Flare removes the enforcement mechanism that makes non-custodial settlement possible.
 
-## Technology
+## Product experience
 
-`Solidity` · `Hardhat` · `OpenZeppelin` · `Flare FDC` · `XRPL` · `React` · `Vite` · `TypeScript` · `Wagmi` · `Viem` · `TanStack Query` · `Express` · `SQLite` · `Docker`
+- Fund and publish real Coston2 settlements.
+- Discover already-funded offers in Open Markets.
+- Track maker, taker, open, reserved, settled, cancelled, and expired states.
+- Sign native XRP payments directly through GemWallet without exposing a seed.
+- Fall back to any external XRPL signer by submitting its validated hash.
+- Follow real XRP preflight, FDC request, consensus, proof, and release progress.
+- View live XRP/USD market references without changing agreed contract amounts.
+- Inspect Coston2, XRPL, and FDC evidence through the relevant explorers.
 
-## Quick start
+## What was built during Summer Signal
 
-Requirements: Node.js 22+, npm, an injected EVM wallet, and dedicated testnet-only accounts.
+- Production smart-contract escrow with identity binding, replay protection, expiry recovery, and official FDC proof verification.
+- Real XRPL `Payment` validation and public Coston2 FDC lifecycle.
+- Persistent, restart-safe SQLite job engine with deduplication and rate limiting.
+- GemWallet Testnet signing with exact single-memo payload and automatic FDC handoff.
+- Responsive trading, market discovery, portfolio, settlement, and protocol interfaces.
+- Live market-reference service with validation, caching, and stale fallback.
+- A real public-testnet settlement with complete transaction evidence.
 
-```powershell
-npm install
-Copy-Item .env.example .env
-npm run contracts:compile
-npm run dev
-```
+ClearX was built as a new Flare-native product for this hackathon. The core value is the implemented and demonstrated XRPL-to-Flare settlement path, not a pre-existing product with a token integration added later.
 
-Open `http://localhost:5173`. The API listens on `http://localhost:3000`; Vite proxies `/api` in development.
+## Architecture and stack
 
-Only place private keys in `.env` or encrypted Railway Variables. Never commit `.env`, reuse testnet keys on mainnet, or prefix a secret with `VITE_`.
+`Solidity` · `Hardhat` · `OpenZeppelin` · `Flare FDC` · `XRPL` · `GemWallet` · `React` · `Vite` · `TypeScript` · `Wagmi` · `Viem` · `TanStack Query` · `Express` · `SQLite`
 
-## Environment
-
-Start from [.env.example](.env.example). The important deployment variables are:
-
-```dotenv
-USDT0_ADDRESS=0xC1A5B41512496B80903D1f32d6dEa3a73212E71F
-CLEARX_CONTRACT_ADDRESS=0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4
-CLEARX_DEPLOYMENT_BLOCK=34049903
-DEPLOYER_PRIVATE_KEY=
-FDC_RELAYER_PRIVATE_KEY=
-```
-
-The deployer key is needed only for contract deployment. The runtime service needs only the relayer key. XRPL seeds always remain in the user's external XRPL wallet or signing tool.
-
-## Settlement flow
-
-1. Maker approves ClearX and locks test USD₮0 with its XRPL receiving address.
-2. Taker reserves the trade using a different Coston2 wallet and its XRPL source address.
-3. Taker sends the exact XRP amount directly to the maker with the displayed 32-byte memo.
-4. Taker submits the validated XRPL transaction hash to ClearX.
-5. The API preflights the transaction before spending FDC fees.
-6. The relayer submits a `Payment` attestation request with `sourceId = testXRP`.
-7. After FDC finalization, the API retrieves the DA-layer Merkle proof.
-8. The contract verifies the proof and transfers locked USD₮0 to the taker.
-
-## Railway deployment
-
-1. Create a Railway project from this GitHub repository.
-2. Attach a persistent volume mounted at `/app/data`.
-3. Set `JOB_DB_PATH=/app/data/clearx.sqlite`.
-4. Add the public configuration from `.env.example`.
-5. Add `FDC_RELAYER_PRIVATE_KEY` as an encrypted variable.
-6. Do not add the deployer key to the permanent runtime.
-7. Generate a public domain and set `PUBLIC_APP_URL`.
-8. Verify `/api/health`, restart persistence, and a complete real settlement.
-
-The included [Dockerfile](Dockerfile) and [railway.json](railway.json) package the frontend and API as one service.
+The relayer cannot fabricate settlement. `ClearXSettlement` independently calls Flare's verifier and checks the attested source, destination, amount, memo, status, timestamp, proof owner, and transaction replay state.
 
 ## Verification
 
-```powershell
-npm run lint
-npm run check
-npm test
-npm run test:contracts
-npm run build
-npm run test:e2e
+```text
+17 unit and integration tests
+7 Solidity contract tests
+35 responsive browser tests across 320, 375, 768, 1024 and 1440 px
+TypeScript, ESLint and production build checks
+1 completed real XRPL → FDC → Coston2 settlement
 ```
 
-The project includes Solidity invariant/state-transition tests, XRPL validation fixtures, TypeScript and lint checks, and Playwright desktop/mobile flows.
+Test coverage includes contract state transitions, proof mismatches, XRP preflight failures, GemWallet rejection and malformed hashes, market-cache fallback, responsive overflow, wallet CTA visibility, and external-payment fallback.
 
 ## Security model
 
-- XRP moves directly between external XRPL accounts.
-- USD₮0 moves only through the audited escrow state machine.
-- Maker and taker EVM/XRPL identities are bound before settlement.
-- Each XRPL transaction is usable only once.
-- State changes occur before token transfers and use `SafeERC20` plus `ReentrancyGuard`.
-- Late payments are rejected; makers have a 15-minute proof grace period before reclaim.
-- Public FDC requests are validated, deduplicated, persisted, and rate-limited.
-- ClearX is currently testnet-only and must not be used with real funds.
+- ClearX never receives or stores an XRPL seed.
+- XRP moves directly between externally controlled XRPL accounts.
+- Private keys never enter frontend variables or committed files.
+- Escrow state changes before token transfers and uses `SafeERC20` plus `ReentrancyGuard`.
+- Every XRP transaction settles at most one trade.
+- Late or mismatched payments cannot release escrow.
+- Public FDC starts are preflighted, deduplicated, persisted, and rate-limited.
+- The current deployment is testnet-only and must not be used with real funds.
+
+## Roadmap
+
+| Stage | Next milestone |
+|---|---|
+| Demo readiness | Public hosted app, judge walkthrough video, mobile wallet QA |
+| Protocol hardening | Independent audit, richer relayer monitoring, indexed event discovery |
+| Market usability | Quote expiry, reusable counterparties, notifications, settlement receipts |
+| Asset expansion | Additional FDC-supported payment rails and Flare-side settlement assets |
+| Production path | Mainnet risk review, production token verification, decentralized relayer model |
+
+## Hackathon submission snapshot
+
+- **Hackathon:** Flare Summer Signal
+- **Selected bounty:** Bounty 1, Interoperable Asset Products
+- **Project:** ClearX
+- **Product:** Non-custodial native XRP versus Flare asset settlement
+- **Deployment:** Flare Coston2 + XRPL Testnet
+- **Repository:** [github.com/NikhilRaikwar/ClearX](https://github.com/NikhilRaikwar/ClearX)
+- **Technical evidence:** [demo-evidence.json](demo-evidence.json)
+- **Developer:** Nikhil Raikwar
 
 ## Documentation
 
 - [Product requirements](CLEARX_PRD.md)
 - [UI specification](CLEARX_UI_SPEC.md)
-- [Flare/FDC verification notes](docs-verification.md)
-- [Real testnet evidence](demo-evidence.json)
+- [Flare/FDC verification](docs-verification.md)
+- [Real settlement evidence](demo-evidence.json)
 
 ## License
 

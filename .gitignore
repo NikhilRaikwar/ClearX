@@ -22,4 +22,5 @@ test-results/
 .agents/
 .codex/
 temp/
+.gstack/
 skills-lock.json
