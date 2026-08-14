@@ -30,6 +30,7 @@ export function createJob(job: Pick<Job, "id" | "tradeId" | "xrplTxHash">): Job 
 }
 export function getJob(id: string) { const row = db.prepare("SELECT * FROM jobs WHERE id=?").get(id); return row ? map(row) : undefined; }
 export function findByTx(hash: string) { const row = db.prepare("SELECT * FROM jobs WHERE xrpl_tx_hash=?").get(hash); return row ? map(row) : undefined; }
+export function findSettledByTrade(tradeId: string) { const row = db.prepare("SELECT * FROM jobs WHERE trade_id=? AND settlement_tx_hash IS NOT NULL ORDER BY updated_at DESC LIMIT 1").get(tradeId); return row ? map(row) : undefined; }
 export function listActiveJobs() { return (db.prepare("SELECT * FROM jobs WHERE stage NOT IN ('SETTLED','FAILED')").all() as any[]).map(map); }
 export function updateJob(id: string, changes: Partial<Job>) {
   const current = getJob(id); if (!current) throw new Error("Job not found");
@@ -37,4 +38,3 @@ export function updateJob(id: string, changes: Partial<Job>) {
   db.prepare(`UPDATE jobs SET stage=?,abi_encoded_request=?,fdc_request_tx_hash=?,voting_round_id=?,settlement_tx_hash=?,error_code=?,error_message=?,updated_at=? WHERE id=?`).run(next.stage, next.abiEncodedRequest ?? null, next.fdcRequestTxHash ?? null, next.votingRoundId ?? null, next.settlementTxHash ?? null, next.errorCode ?? null, next.errorMessage ?? null, next.updatedAt, id);
   return getJob(id)!;
 }
-

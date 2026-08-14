@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Contract, JsonRpcProvider } from "ethers";
 import { config, isConfigured } from "./config.js";
 import { clearXAbi } from "./abi.js";
-import { getJob } from "./db.js";
+import { findSettledByTrade, getJob } from "./db.js";
 import { resumeJobs, startJob } from "./fdc.js";
 import { getXrpUsdPrice } from "./market.js";
 
@@ -35,8 +35,17 @@ app.get("/api/fdc/jobs/:id", (req, res) => { const job = getJob(req.params.id); 
 const provider = new JsonRpcProvider(config.COSTON2_RPC_URL, config.COSTON2_CHAIN_ID);
 async function settlementTxHash(contract: Contract, tradeId: string, status: number) {
   if (status !== 3) return undefined;
-  const events = await contract.queryFilter(contract.filters.TradeSettled(BigInt(tradeId)), config.CLEARX_DEPLOYMENT_BLOCK, "latest");
-  return events.at(-1)?.transactionHash;
+  const persisted = findSettledByTrade(tradeId)?.settlementTxHash;
+  if (persisted) return persisted;
+  try {
+    const latest = await provider.getBlockNumber();
+    for (let to = latest; to >= config.CLEARX_DEPLOYMENT_BLOCK; to -= 2_000) {
+      const from = Math.max(config.CLEARX_DEPLOYMENT_BLOCK, to - 1_999);
+      const events = await contract.queryFilter(contract.filters.TradeSettled(BigInt(tradeId)), from, to);
+      if (events.length) return events.at(-1)?.transactionHash;
+    }
+  } catch { return undefined; }
+  return undefined;
 }
 async function readTrades(wallet?: string) {
   if (!config.CLEARX_CONTRACT_ADDRESS) return [];
