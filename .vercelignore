@@ -1,0 +1,14 @@
+server/
+contracts/
+scripts/
+test/
+e2e/
+data/
+Dockerfile
+railway.json
+hardhat.config.ts
+playwright.config.ts
+docs-verification.md
+demo-evidence.json
+CLEARX_PRD.md
+CLEARX_UI_SPEC.md

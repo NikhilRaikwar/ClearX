@@ -24,3 +24,8 @@ test-results/
 temp/
 .gstack/
 skills-lock.json
+DEMO_VIDEO.md
+SUBMIT_BUIDL.md
+CLEARX_PRD.md
+CLEARX_UI_SPEC.md
+.vercel/

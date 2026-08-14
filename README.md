@@ -10,11 +10,22 @@
 [![Tests](https://img.shields.io/badge/tests-59_passing-079A61?style=flat-square)](#verification)
 [![License](https://img.shields.io/badge/license-MIT-2563EB?style=flat-square)](LICENSE)
 
+[**Live application**](https://clearx-protocol.vercel.app) · [**API health**](https://clearx-protocol.vercel.app/api/health) · [**Verified Coston2 contract**](https://coston2-explorer.flare.network/address/0xf8c3682A1C3cCE91FF3709Cc4907681c98dC0Ce4#code)
+
 ClearX is a non-custodial payment-versus-payment marketplace between native XRP on XRP Ledger and USD₮0 on Flare. A maker funds an escrow on Coston2, a taker pays XRP directly to the maker, and Flare Data Connector proves the external-chain payment before the contract releases USD₮0.
 
 > **Flare Summer Signal · Bounty 1: Interoperable Asset Products**
 >
 > Target users: OTC traders, treasury operators, XRP holders, market makers, and counterparties who need verifiable bilateral settlement.
+
+## Judge quick path
+
+1. Open the [live app](https://clearx-protocol.vercel.app) and inspect **Open Settlements**, **My Trades**, and **How it works**.
+2. Review the completed public-testnet settlement in [demo-evidence.json](demo-evidence.json).
+3. Open the [native XRP payment](https://testnet.xrpl.org/transactions/4EE4880D6BC32082094B8F069C809D8C69CA5049D8B6CC61EE62C461C4128172), [FDC voting round](https://coston2-systems-explorer.flare.network/voting-round/1425351?tab=fdc), and [USD₮0 release](https://coston2-explorer.flare.network/tx/0xc01126e7e0a6edc2b2fe26c21eb85bbe30ce8750a980d53e602f044ba442fcf1).
+4. Confirm the hosted backend is configured at [the public health endpoint](https://clearx-protocol.vercel.app/api/health).
+
+The app is a real testnet MVP. Do not use mainnet funds or production wallet credentials.
 
 ## The problem
 
@@ -119,6 +130,14 @@ ClearX was built as a new Flare-native product for this hackathon. The core valu
 
 The relayer cannot fabricate settlement. `ClearXSettlement` independently calls Flare's verifier and checks the attested source, destination, amount, memo, status, timestamp, proof owner, and transaction replay state.
 
+### Hosted deployment
+
+- **Frontend:** Vercel at [clearx-protocol.vercel.app](https://clearx-protocol.vercel.app), with privacy-friendly Vercel Web Analytics.
+- **Backend:** Railway Docker service running the Express API and FDC worker.
+- **Persistence:** Railway volume mounted at `/app/data` for restart-safe SQLite job state.
+- **Networking:** same-origin `/api` requests are proxied by Vercel to Railway, avoiding browser DNS and CORS dependence.
+- **Secrets:** the permanent runtime contains the relayer key only; no deployer key or XRPL seed is deployed.
+
 ## Verification
 
 ```text
@@ -152,6 +171,24 @@ Test coverage includes contract state transitions, proof mismatches, XRP preflig
 | Asset expansion | Additional FDC-supported payment rails and Flare-side settlement assets |
 | Production path | Mainnet risk review, production token verification, decentralized relayer model |
 
+## Judging criteria
+
+| Criterion | ClearX evidence |
+|---|---|
+| Product usefulness | Removes send-first and custody risk from bilateral native-XRP settlement |
+| Flare integration quality | FDC proof verification is the contract's settlement-enforcement boundary |
+| Technical execution | Hosted product, verified contract, persistent relayer, automated tests, and a completed public-testnet settlement |
+| Evidence of new work | Contract, relayer, XRPL validation, GemWallet flow, interface, deployment, and real evidence were built during Summer Signal |
+| Clarity and future potential | Focused testnet MVP with an explicit security model and a path to more assets, payment rails, and decentralized relaying |
+
+## Known limitations
+
+- ClearX is testnet-only and has not received an independent security audit.
+- FDC consensus is asynchronous and may outlast a short live demo.
+- A single relayer currently submits requests and proofs, although it cannot forge a proof the contract accepts.
+- Trade discovery scans a bounded recent range instead of using a production indexer.
+- XRP/USD is a display-only market reference, not an execution oracle.
+
 ## Hackathon submission snapshot
 
 - **Hackathon:** Flare Summer Signal
@@ -165,8 +202,6 @@ Test coverage includes contract state transitions, proof mismatches, XRP preflig
 
 ## Documentation
 
-- [Product requirements](CLEARX_PRD.md)
-- [UI specification](CLEARX_UI_SPEC.md)
 - [Flare/FDC verification](docs-verification.md)
 - [Real settlement evidence](demo-evidence.json)
 
