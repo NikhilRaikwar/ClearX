@@ -39,8 +39,8 @@ async function settlementTxHash(contract: Contract, tradeId: string, status: num
   if (persisted) return persisted;
   try {
     const latest = await provider.getBlockNumber();
-    for (let to = latest; to >= config.CLEARX_DEPLOYMENT_BLOCK; to -= 2_000) {
-      const from = Math.max(config.CLEARX_DEPLOYMENT_BLOCK, to - 1_999);
+    for (let from = config.CLEARX_DEPLOYMENT_BLOCK; from <= latest; from += 30) {
+      const to = Math.min(latest, from + 29);
       const events = await contract.queryFilter(contract.filters.TradeSettled(BigInt(tradeId)), from, to);
       if (events.length) return events.at(-1)?.transactionHash;
     }
