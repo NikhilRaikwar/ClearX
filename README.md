@@ -72,6 +72,9 @@ The relayer cannot fabricate settlement. `ClearXSettlement` independently calls 
 
 ## Core capabilities
 
+- Browser-native XRP signing through GemWallet on XRPL Testnet, with no seed entering ClearX.
+- Automatic transaction-hash handoff from GemWallet into the existing FDC settlement job.
+- Live Coinbase XRP/USD market references with 30-second caching and safe stale fallback.
 - Real USD₮0 escrow, public/private listings, reservation, cancellation, and expiry recovery.
 - Direct native XRP payment; ClearX never receives or stores an XRPL seed.
 - Exact 32-byte payment reference carried in one XRPL `MemoData` field.
@@ -86,7 +89,7 @@ The relayer cannot fabricate settlement. `ClearXSettlement` independently calls 
 
 ## Quick start
 
-Requirements: Node.js 22+, npm, an injected EVM wallet, and dedicated testnet-only accounts.
+Requirements: Node.js 22+, npm, an injected EVM wallet, [GemWallet](https://gemwallet.app/), and dedicated testnet-only accounts.
 
 ```powershell
 npm install
@@ -113,12 +116,25 @@ FDC_RELAYER_PRIVATE_KEY=
 
 The deployer key is needed only for contract deployment. The runtime service needs only the relayer key. XRPL seeds always remain in the user's external XRPL wallet or signing tool.
 
+## GemWallet browser demo
+
+1. Install GemWallet from its official browser-extension link and import the Taker's **testnet-only** XRPL account inside the extension.
+2. In GemWallet, switch the active network to **Testnet**. Never import a mainnet seed for this demo.
+3. Connect the Maker's MetaMask account, create a funded settlement, and optionally use the Maker GemWallet address as the XRP receiver.
+4. Switch MetaMask to the Taker Coston2 account, open the settlement, connect GemWallet, and reserve with its connected classic address.
+5. Select **Pay XRP with GemWallet**. ClearX constructs one native XRP `Payment` containing the exact destination, drops amount, and one 32-byte `MemoData` value.
+6. Review and approve inside GemWallet. Its returned hash is normalized and sent directly to the existing FDC job; no copy/paste or XRPL secret is required.
+
+If the payment was made using another XRPL Testnet signer, open **Paid externally? Use transaction hash** and paste its validated 64-character hash. This manual fallback uses the same preflight and FDC flow.
+
+The XRP/USD ticker and USD estimates are display-only Coinbase market references. They never modify contract amounts, agreed exchange rates, or settlement conditions. Test USD₮0 is displayed at a clearly labelled `$1` testnet reference and is not an oracle-backed execution price.
+
 ## Settlement flow
 
 1. Maker approves ClearX and locks test USD₮0 with its XRPL receiving address.
 2. Taker reserves the trade using a different Coston2 wallet and its XRPL source address.
-3. Taker sends the exact XRP amount directly to the maker with the displayed 32-byte memo.
-4. Taker submits the validated XRPL transaction hash to ClearX.
+3. Taker signs the exact XRP payment and displayed 32-byte memo in GemWallet (or pays externally).
+4. GemWallet returns the validated transaction hash automatically; an external payment can use the manual hash fallback.
 5. The API preflights the transaction before spending FDC fees.
 6. The relayer submits a `Payment` attestation request with `sourceId = testXRP`.
 7. After FDC finalization, the API retrieves the DA-layer Merkle proof.
